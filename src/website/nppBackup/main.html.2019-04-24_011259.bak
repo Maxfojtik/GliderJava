@@ -1,0 +1,127 @@
+ <!DOCTYPE html>
+<html>
+<body>
+
+<div id="googleMap" style="width:100%;height:100%;"></div>
+<style>
+html, body{
+    height: 100%;
+    width: 100%;
+}
+.top-left {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  background-color: black;
+  color: white
+}
+.top-right {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  background-color: black;
+  color: white
+}
+</style>
+<script>
+var marker;
+var map;
+function myMap() {
+	var mapProp={
+	  center:new google.maps.LatLng(39.995988, -83.011675),
+	  zoom:19,
+	  mapTypeId: 'satellite',
+	  zoomControl: false,
+	  mapTypeControl: false,
+	  scaleControl: false,
+	  streetViewControl: false,
+	  rotateControl: false,
+	  fullscreenControl: true
+	};
+	map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+	map.setTilt(0);
+	marker = new google.maps.Marker({
+		position: map.getCenter(),
+		icon: {
+			path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+			scale: 10,
+			strokeWeight: 5
+		},
+		draggable: false
+	});
+	marker.setMap(map);
+	setInterval(perodic, 1000);
+}
+
+var x = 0;
+var lastTime = 0;
+function perodic() {
+	var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function () {
+			if (this.readyState != 4) return;
+
+			if (this.status == 200) {
+				//console.log(this.responseText);
+				var data = JSON.parse(this.responseText);
+				console.log(data);
+				setTimeout(function() {
+					parse(data);
+				}, 100)
+				if(data.hasOwnProperty("Time") && data["Time"]!=lastTime)
+				{
+					var icon = marker.getIcon();
+					icon.strokeColor = 'white';
+					marker.setIcon(icon);
+				}
+			}
+		};
+		/*var icon = marker.getIcon();
+		icon.strokeColor = 'black';
+		marker.setIcon(icon);*/
+		xhr.open('POST', "http://localhost:81/telem.html");
+		xhr.send();
+	}
+	function parse(data)
+	{
+		//var telem = this.responseText;
+		var icon = marker.getIcon();
+		icon.rotation = data["HED"]+180;
+		if(!data["Connected"])
+		{
+			icon.strokeColor = 'black';
+			document.getElementById("tele").innerHTML = "NO TELEMETRY"
+			document.getElementById("volt").innerHTML = "NO TELEMETRY"
+		}
+		else
+		{
+			if(data["GPS"]["fix"])
+			{
+				var latlng = new google.maps.LatLng(data["GPS"]["lat"], data["GPS"]["lon"]);
+				marker.setPosition(latlng);
+				icon.strokeColor = 'green';
+				document.getElementById("tele").innerHTML = "GPS fixed"
+			}
+			else
+			{
+				marker.setPosition(map.getCenter());
+				icon.strokeColor = 'red';
+				document.getElementById("tele").innerHTML = "GPS not fixed"
+			}
+			lastTime = data["Time"];
+			if(data["Over"])
+			{
+				icon.strokeColor = 'blue';
+				document.getElementById("tele").innerHTML += ", OVERRIDEN"
+			}
+			document.getElementById("volt").innerHTML += data["VOLT"];
+		}
+		marker.setIcon(icon);
+	}
+	//perodic();
+</script>
+<div class="top-left"> <font id="tele" size="20">NO TELEMETRY</font> </div>
+<div class="top-right"> <font id="volt" size="20">NO TELEMETRY</font> </div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAY9MQPPeaY0n4mOKhDIqBisdjNrOceHJo&callback=myMap"></script>
+
+</body>
+</html> 

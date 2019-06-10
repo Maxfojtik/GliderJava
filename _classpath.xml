@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/Users/Maxwell/JInput/dist/jinput.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Users/Maxwell/JInput/coreAPI/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="src/jSerialComm-2.4.0.jar"/>
+	<classpathentry kind="lib" path="src/json-20180813.jar" sourcepath="C:/Users/Maxwell/.m2/repository/org/json/json/20180813/json-20180813-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
