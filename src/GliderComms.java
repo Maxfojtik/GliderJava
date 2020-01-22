@@ -22,6 +22,7 @@ public class GliderComms
 	static long lastTeleRece = 0;
 	static long lastTrySend = 0;
 	static boolean toArm = false;
+	static boolean toEnable = false;
 	public static void main(String[] args) throws Exception
 	{
 		new Frame();
@@ -158,15 +159,42 @@ public class GliderComms
 	static void keyDown(int key)
 	{
 		Frame.print("KEY: "+key);
-		if(key==13)
+		if(key==13)//[enter]
 		{
 			MicroConnection.send("ARMT");
 			toArm = true;
 		}
-		if(key==32)
+		if(key==32)//[space]
 		{
+//			DataLogging.stop();
 			MicroConnection.send("ARMF");
 			toArm = false;
+		}
+		if(key==69)//E
+		{
+			MicroConnection.send("ENAT");
+			toEnable = true;
+		}
+		if(key==38)//[up]
+		{
+		}
+		if(key==40)//[down]
+		{
+		}
+		if(key==37)//[left]
+		{
+		}
+		if(key==39)//[right]
+		{
+			MicroConnection.send("TESTRIGHT");
+		}
+		if(key==71)//[G]
+		{
+			MicroConnection.send("G");
+		}
+		if(key==67)//[C]
+		{
+			MicroConnection.send("CALG");
 		}
 	}
 	static void keyUp(String key)

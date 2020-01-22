@@ -152,9 +152,12 @@ function perodic() {
       {
 			     document.getElementById("motors").innerHTML = (((data["motorL"]-1100)/800)*100)+"%:"+(((data["motorR"]-1100)/800)*100)+"%";
       }
-			document.getElementById("state").innerHTML = "State: "+data["state"];
+			document.getElementById("state").innerHTML = "State: "+data["state"]+", Average Loop Time: "+data["averageLoopTime"];
 			document.getElementById("baro").innerHTML = "Relative Altitude: "+data["altitude"]+"m  Temperature: "+Math.round(data["temperature"]/5*9+32)+"F";
 			document.getElementById("rssi").innerHTML = data["RSSI"]+"dBs ("+Math.round((((data["RSSI"]+15.0)/(100-15))+1)*100)+"%)";
+      document.getElementById("targets").innerHTML = "Targets: Heading: "+data["targetHeading"]+", Speed: "+data["targetSpeed"]+", Pitch: "+data["targetPitch"]+", Roll: "+data["targetRoll"];
+      document.getElementById("gyro").innerHTML = "GY: "+data["GY"]+", GR: "+data["GR"]+", GP: "+data["GP"]+", GT: "+data["GT"]/1000+" seconds";
+      document.getElementById("accel").innerHTML = "H: "+data["H"]+", AY: "+data["AY"]+", AR: "+data["AR"]+", AP: "+data["AP"];
 		}
 		marker.setIcon(icon);
 	}
@@ -184,6 +187,9 @@ window.onkeydown = function(e) {
   <div> <font id="rssi" size="5">NO RSSI TELEMETRY</font> </div>
   <div> <font id="motors" size="5">NO MOTORS TELEMETRY</font> </div>
   <div> <font id="state" size="5">NO STATE TELEMETRY</font> </div>
+  <div> <font id="targets" size="5">NO TARGETS TELEMETRY</font> </div>
+  <div> <font id="gyro" size="5">NO GYRO TELEMETRY</font> </div>
+  <div> <font id="accel" size="5">NO ACCEL TELEMETRY</font> </div>
 </div>
 <!--<div class="top-left"> <font id="tele" size="20">NO TELEMETRY</font> </div>
 <div class="top-right"> <font id="volt" size="20">NO TELEMETRY</font> </div>

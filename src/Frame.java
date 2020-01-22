@@ -13,6 +13,13 @@ public class Frame
 		f.setResizable(false);
 		f.setVisible(true);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent e) {
+		        e.getWindow().dispose();
+		        DataLogging.stop();
+		    }
+		});
 	}
 	static void print(String out)
 	{

@@ -37,13 +37,13 @@ public class MicroConnection
 //			System.out.println("Trying "+attemptPort.getDescriptivePortName());
 			Frame.print("Trying "+attemptPort.getDescriptivePortName());
 			attemptPort.openPort();
-			Thread.sleep(3000);
+//			Thread.sleep(1000);
 			output = new BufferedWriter(new OutputStreamWriter(attemptPort.getOutputStream()));
 			output.write("ping\n");
 			output.flush();
 			InputStreamReader ISR = new InputStreamReader(attemptPort.getInputStream());
 			input = new BufferedReader(ISR);
-			Thread.sleep(100);
+//			Thread.sleep(100);
 			if(input.ready())
 			{
 				String str = input.readLine();
@@ -86,6 +86,7 @@ public class MicroConnection
 		if(connected)
 		{
 			Frame.print("->"+event);
+			DataLogging.log("->"+event);
 //			System.out.println("<-"+event);
 			try {
 				output.write(event+"\n");
@@ -212,21 +213,61 @@ public class MicroConnection
 		for(int i = 0; i < subTelem.length; i++)
 		{
 			String[] subTelemParts = subTelem[i].split(":");
-			if(subTelemParts[0].equals("X"))
+			if(subTelemParts[0].equals("Y"))
 			{
-				telem.put("X", Double.parseDouble(subTelemParts[1]));
+				telem.put("AY", Double.parseDouble(subTelemParts[1]));
 			}
-			else if(subTelemParts[0].equals("Y"))
+			else if(subTelemParts[0].equals("P"))
 			{
-				telem.put("Y", Double.parseDouble(subTelemParts[1]));
+				telem.put("AP", Double.parseDouble(subTelemParts[1]));
 			}
-			else if(subTelemParts[0].equals("Z"))
+			else if(subTelemParts[0].equals("R"))
 			{
-				telem.put("Z", Double.parseDouble(subTelemParts[1]));
+				telem.put("AR", Double.parseDouble(subTelemParts[1]));
 			}
 			else if(subTelemParts[0].equals("H"))
 			{
 				telem.put("H", Double.parseDouble(subTelemParts[1]));
+			}
+			else if(subTelemParts[0].equals("GY"))
+			{
+				telem.put("GY", Double.parseDouble(subTelemParts[1]));
+			}
+			else if(subTelemParts[0].equals("GP"))
+			{
+				telem.put("GP", Double.parseDouble(subTelemParts[1]));
+			}
+			else if(subTelemParts[0].equals("GR"))
+			{
+				telem.put("GR", Double.parseDouble(subTelemParts[1]));
+			}
+			else if(subTelemParts[0].equals("GT"))
+			{
+				telem.put("GT", Long.parseLong(subTelemParts[1]));
+			}
+		}
+	}
+	static void parseT(String[] subTelem)
+	{
+		JSONObject telem = GliderComms.lastTelem;
+		for(int i = 0; i < subTelem.length; i++)
+		{
+			String[] subTelemParts = subTelem[i].split(":");
+			if(subTelemParts[0].equals("S"))
+			{
+				telem.put("targetSpeed", Double.parseDouble(subTelemParts[1]));
+			}
+			else if(subTelemParts[0].equals("H"))
+			{
+				telem.put("targetHeading", Double.parseDouble(subTelemParts[1]));
+			}
+			else if(subTelemParts[0].equals("R"))
+			{
+				telem.put("targetRoll", Double.parseDouble(subTelemParts[1]));
+			}
+			else if(subTelemParts[0].equals("P"))
+			{
+				telem.put("targetPitch", Double.parseDouble(subTelemParts[1]));
 			}
 		}
 	}
@@ -281,9 +322,13 @@ public class MicroConnection
 			{
 				telem.put("over", sbool(subTelemParts[1]));
 			}
-			else if(subTelemParts[0].equals("R"))
+			else if(subTelemParts[0].equals("L"))
 			{
-//				telem.put("RSSI", Integer.parseInt(subTelemParts[1]));
+				telem.put("averageLoopTime", Double.parseDouble(subTelemParts[1]));
+			}
+			else if(subTelemParts[0].equals("I"))
+			{
+				telem.put("millis", Long.parseLong(subTelemParts[1]));
 			}
 			else if(subTelemParts[0].equals("N"))
 			{
@@ -295,7 +340,16 @@ public class MicroConnection
 			}
 			else if(subTelemParts[0].equals("S"))
 			{
-				telem.put("state", Integer.parseInt(subTelemParts[1]));
+				int state = Integer.parseInt(subTelemParts[1]);
+				if(state==-1 && GliderComms.toEnable)
+				{
+					MicroConnection.send("ENAT");
+				}
+				if(state!=-1 && GliderComms.toEnable)
+				{
+					GliderComms.toEnable = false;
+				}
+				telem.put("state", state);
 			}
 		}
 	}
@@ -331,6 +385,11 @@ public class MicroConnection
 							String[] subTelem = line.split(",");
 							parseA(subTelem);
 						}
+						if(line.startsWith("T,"))
+						{
+							String[] subTelem = line.split(",");
+							parseT(subTelem);
+						}
 						if(line.startsWith("M,"))
 						{
 							String[] subTelem = line.split(",");
@@ -350,6 +409,7 @@ public class MicroConnection
 							GliderComms.lastTeleRece = System.currentTimeMillis();
 							GliderComms.lastTelem.put("Connected", true);
 							GliderComms.lastTelem.put("Time", System.currentTimeMillis());
+							DataLogging.logTelem(GliderComms.lastTelem.toString());
 						}
 					}
 				}
@@ -366,6 +426,12 @@ public class MicroConnection
 		while(!MicroConnection.connected)
 		{
 			MicroConnection.tryConnection();
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }
